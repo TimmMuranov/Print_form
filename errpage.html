@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Заказ печати</title>
+    <style>
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(cyan, black) no-repeat fixed;
+    font-family: sans-serif;
+    color: black;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Контейнер для формы, чтобы ограничить ширину на ПК и растянуть на мобильных */
+.container {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+button {
+    display: block;
+    width: 100%; /* Занимает всю ширину контейнера (max 400px) */
+    max-width: 280px; /* Чтобы кнопка не была слишком гигантской на ПК */
+    min-height: 48px; /* Удобный размер для нажатия пальцем по гайдлайнам Apple/Google */
+    padding: 12px;
+    margin: 10px auto;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+
+input[type="text"] {
+    width: 100%;
+    max-width: 280px;
+    padding: 12px;
+    box-sizing: border-box;
+    margin: 10px auto;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px; /* Защита от автозума на iOS при фокусе */
+}
+
+.hidden {
+    display: none !important;
+}
+
+.file-list {
+    background: rgba(255, 255, 255, 0.2); /* Полупрозрачный фон под градиент */
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    list-style: none;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+    text-align: left;
+    margin: 10px auto;
+}
+
+/* Адаптивное модальное окно */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 12px;
+    z-index: 10;
+    width: 85%; /* На мобилках занимает почти всю ширину */
+    max-width: 320px; /* На ПК остается аккуратным окошком */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+}
+
+.hello_text {
+    color: black;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto 15px auto;
+}
+
+/* Медиа-запрос для совсем маленьких экранов (смартфоны в портретной ориентации) */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    button, input[type="text"], .file-list {
+        max-width: 100%; /* На микро-экранах элементы займут всю доступную ширину */
+    }
+}
+
+/* Фиксируем подвал строго внизу экрана */
+.secret-footer {
+    position: fixed;
+    bottom: 15px; /* Отступ от самого низа экрана */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 5; /* Чтобы другие элементы не перекрывали */
+}
+
+/* Маскируем ссылку */
+.secret-link {
+    color: cyan;
+    text-decoration: none; /* Убираем подчеркивание, которое выдает ссылку */
+    font-size: 12px !important; /* Делаем шрифт маленьким и фиксированным */
+    cursor: default; /* При наведении курсор не будет превращаться в "пальчик" (для ПК) */
+    user-select: none; /* Текст нельзя случайно выделить мышкой или пальцем */
+    transition: color 0.3s ease;
+}
+
+/* Опционально: ссылка станет чуть заметнее только для вас, если вы зажмете её пальцем или наведете курсор */
+.secret-link:hover, .secret-link:active {
+    color: #1a1a1a; 
+}
+
+    </style>
+</head>
+<body>
+   <h3> Печать в подвале временно не работает</h3>
+   
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Заказ печати</title>
+    <style>
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(cyan, black) no-repeat fixed;
+    font-family: sans-serif;
+    color: black;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+button {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    min-height: 48px;
+    padding: 12px;
+    margin: 10px auto;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+
+input[type="text"] {
+    width: 100%;
+    max-width: 280px;
+    padding: 12px;
+    box-sizing: border-box;
+    margin: 10px auto;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.file-list {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    list-style: none;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+    text-align: left;
+    margin: 10px auto;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 12px;
+    z-index: 10;
+    width: 85%;
+    max-width: 320px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+}
+
+.hello_text {
+    color: black;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto 15px auto;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    button, input[type="text"], .file-list {
+        max-width: 100%;
+    }
+}
+
+.secret-footer {
+    position: fixed;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 5;
+}
+
+    </style>
+</head>
+<body>
+    <h2 class="hello_text">Заказ печати</h2><p>
+    <a href = "q.html">Что за сайт?</a><p>
+    <!-- Шаг 1: Файлы -->
+    <button onclick="document.getElementById('fileInput').click()">Выбрать файл</button>
+    <input type="file" id="fileInput" multiple style="display: none;">
+    <ul id="fileList" class="file-list hidden"></ul>
+
+    <!-- Шаг 2: Комментарий и отправка -->
+    <div id="finalStep" class="hidden">
+        <input type="text" id="commentInput" placeholder="Комментарий">
+        <button id="orderBtn" style="background: green; color: white;">Заказать</button>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const finalStep = document.getElementById('finalStep');
+        const commentInput = document.getElementById('commentInput');
+        const orderBtn = document.getElementById('orderBtn');
+
+        let filesArray = [];
+
+        // Выбор файлов (можно нажимать много раз)
+        fileInput.addEventListener('change', () => {
+            for (let file of fileInput.files) {
+                // Сохраняем весь объект файла, чтобы потом отправить на сервер
+                filesArray.push(file);
+
+                // Добавляем имя файла на страницу
+                const li = document.createElement('li');
+                li.textContent = "📄 " + file.name;
+                fileList.appendChild(li);
+            }
+
+            fileList.classList.remove('hidden');
+            fileInput.value = ""; // Сбрасываем, чтобы можно было выбирать повторно
+            finalStep.classList.remove('hidden');
+        });
+
+        // Клик на кнопку "Заказать"
+        // Добавлено async для работы с await fetch
+        orderBtn.addEventListener('click', async () => {
+            let comment = document.getElementById("commentInput").value.trim();
+            if(comment === ""){
+            alert ("Пожалуйста, введите комментарий (от кого и что нужно распечатать)"); 
+            return;
+            }
+
+
+            const formData = new FormData();
+
+            // Добавляем текстовые поля
+            formData.append('comment', comment);
+
+            // Добавляем все загруженные файлы в массив 'files[]'
+            filesArray.forEach((file) => {
+                formData.append('files[]', file);
+            });
+
+            try {
+                // Блокируем кнопку на время отправки, чтобы избежать повторных кликов
+                orderBtn.disabled = true;
+                orderBtn.textContent = 'Отправка...';
+
+                // Отправка данных на ваш сервер
+                const response = await fetch('http://site.com:8080', { //Нужно заменить на слушающий сайт
+                    method: 'POST',
+                    body: formData // Заголовки Content-Type указывать НЕ НАДО, fetch сделает это сам для FormData
+                });
+
+                if (response.ok) {
+                    alert('Заказ успешно отправлен');
+
+                    // Возврат в самое начало (сброс)
+                    filesArray = [];
+                    fileList.innerHTML = "";
+                    commentInput.value = "";
+
+                    fileList.classList.add('hidden');
+                    finalStep.classList.add('hidden');
+                } else {
+                    alert('Ошибка сервера: ' + response.status);
+                }
+            } catch (error) {
+                console.error('Ошибка сети:', error);
+                alert('Не удалось связаться с сервером. Проверьте подключение.');
+            } finally {
+                // Разблокируем кнопку обратно
+                orderBtn.disabled = false;
+                orderBtn.textContent = 'Заказать';
+            }
+        });
+
+(function initWaterEffect() {
+    // 1. Создаем canvas и добавляем его на страницу поверх всего
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Стили для того, чтобы canvas был прозрачным и покрывал весь экран, не мешая кликам
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    canvas.style.zIndex = '999999'; // Поверх всех элементов
+    canvas.style.pointerEvents = 'none'; // Позволяет кликать сквозь воду на кнопки сайта
+    document.body.appendChild(canvas);
+
+    // 2. Настройки физики воды
+    const scale = 4; // Оптимизация разрешения (сетка в 4 раза меньше экрана)
+    const damping = 0.96; // Скорость затухания (чем меньше, тем быстрее затухает вода)
+    let width, height, buffer1, buffer2, imgData;
+
+    function resize() {
+        width = Math.floor(window.innerWidth / scale);
+        height = Math.floor(window.innerHeight / scale);
+        canvas.width = width;
+        canvas.height = height;
+        buffer1 = new Float32Array(width * height);
+        buffer2 = new Float32Array(width * height);
+        imgData = ctx.createImageData(width, height);
+    }
+
+    // 3. Функция создания импульса (волны)
+    function dropWater(x, y, radius, strength) {
+        const cx = Math.floor(x / scale);
+        const cy = Math.floor(y / scale);
+
+        for (let dy = -radius; dy <= radius; dy++) {
+            for (let dx = -radius; dx <= radius; dx++) {
+                const nx = cx + dx;
+                const ny = cy + dy;
+                if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                    if (dx * dx + dy * dy < radius * radius) {
+                        buffer1[nx + ny * width] += strength;
+                    }
+                }
+            }
+        }
+    }
+
+    // 4. Математический просчет взаимодействия волн
+    function updateWater() {
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                const idx = x + y * width;
+                buffer2[idx] = (
+                    buffer1[idx - 1] +
+                    buffer1[idx + 1] +
+                    buffer1[idx - width] +
+                    buffer1[idx + width]
+                ) / 2 - buffer2[idx];
+                buffer2[idx] *= damping;
+            }
+        }
+        let temp = buffer1;
+        buffer1 = buffer2;
+        buffer2 = temp;
+    }
+
+    // 5. Отрисовка полупрозрачной воды
+    function render() {
+        const data = imgData.data;
+
+        for (let i = 0; i < buffer1.length; i++) {
+            const heightDiff = buffer1[i] - buffer1[i + 1];
+            const pixelIdx = i * 4;
+
+            if (heightDiff !== 0) {
+                // Рассчитываем силу блика на основе уклона волны
+                const shade = heightDiff * 3.5; 
+                
+                // Цвет волны: нежно-голубой/бирюзовый
+                data[pixelIdx] = Math.min(255, Math.max(0, 100 + shade * 1.5));     // R
+                data[pixelIdx + 1] = Math.min(255, Math.max(0, 200 + shade * 2.5)); // G
+                data[pixelIdx + 2] = Math.min(255, Math.max(0, 255 + shade * 4.0)); // B
+                // Прозрачность зависит от силы волны: спокойная вода полностью невидима
+                data[pixelIdx + 3] = Math.min(180, Math.max(0, Math.abs(shade) * 15)); // A (Max 180 из 255)
+            } else {
+                // В спокойных участках вода абсолютно прозрачная
+                data[pixelIdx + 3] = 0; 
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    // 6. Отслеживание движений (мышь и тачскрин) вешаем на всё окно window
+    function handleMove(e) {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        if (clientX !== undefined && clientY !== undefined) {
+            dropWater(clientX, clientY, 2, 12); // Радиус 2, сила 12
+        }
+    }
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('touchmove', handleMove, { passive: true });
+    window.addEventListener('touchstart', handleMove, { passive: true });
+    window.addEventListener('resize', resize);
+
+    // 7. Запуск
+    resize();
+    (function animate() {
+        updateWater();
+        render();
+        requestAnimationFrame(animate);
+    })();
+})();
+    </script>
+</body>
+</html>
